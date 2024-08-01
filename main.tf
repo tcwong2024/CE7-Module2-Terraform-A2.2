@@ -3,12 +3,11 @@
 #################################################################################
 
 resource "aws_vpc" "wtc_tf_vpc" {
-  # cidr_block       = "10.0.0.0/16"
   cidr_block       = var.vpc_cidr_block
   instance_tenancy = "default"
 
   tags = {
-    Name = "wtc-tf-vpc"
+    Name = var.vpc_name
   }
 }
 
@@ -18,7 +17,6 @@ resource "aws_vpc" "wtc_tf_vpc" {
 
 resource "aws_subnet" "wtc_tf_public_subnet_az1" {
   vpc_id            = aws_vpc.wtc_tf_vpc.id
-  # cidr_block        = "10.0.10.0/24"
   cidr_block        = var.public_subnet_cidr_blocks[0]
   availability_zone = "us-east-1a"
 
@@ -33,7 +31,6 @@ resource "aws_subnet" "wtc_tf_public_subnet_az1" {
 
 resource "aws_subnet" "wtc_tf_public_subnet_az2" {
   vpc_id            = aws_vpc.wtc_tf_vpc.id
-  # cidr_block        = "10.0.20.0/24"
   cidr_block        = var.public_subnet_cidr_blocks[1]
   availability_zone = "us-east-1b"
 
@@ -48,7 +45,6 @@ resource "aws_subnet" "wtc_tf_public_subnet_az2" {
 
 resource "aws_subnet" "wtc_tf_private_subnet_az1" {
   vpc_id            = aws_vpc.wtc_tf_vpc.id
-  #cidr_block        = "10.0.111.0/24"
   cidr_block        = var.private_subnet_cidr_blocks[0]
   availability_zone = "us-east-1a"
 
@@ -63,7 +59,6 @@ resource "aws_subnet" "wtc_tf_private_subnet_az1" {
 
 resource "aws_subnet" "wtc_tf_private_subnet_az2" {
   vpc_id            = aws_vpc.wtc_tf_vpc.id
-  # cidr_block        = "10.0.109.0/24"
   cidr_block        = var.private_subnet_cidr_blocks[1]
   availability_zone = "us-east-1b"
 
@@ -171,52 +166,6 @@ resource "aws_vpc_endpoint" "wtc_tf_vpce_s3" {
 }
 
 #################################################################################
-# Security Group 
-#################################################################################
-
-resource "aws_security_group" "wtc_tf_sg_allow_ssh_http_https" {
-  name = "wtc-tf-sg-allow-ssh-http-https"
-  vpc_id = aws_vpc.wtc_tf_vpc.id
-
-  # Port 80 for HTTP
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Port 80 for HTTPSyes
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Port 80 for SSH
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # "-1" Allows all protocols
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"  
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "wtc-tf-sg-allow-ssh-http-https"
-  }
-}
-
-#################################################################################
 # AMI 
 #################################################################################
 
@@ -234,34 +183,4 @@ data "aws_ami" "amazon_linux" {
   }
 
   owners = ["amazon"]
-}
-
-#################################################################################
-# EC2 Instance
-#################################################################################
-
-resource "aws_instance" "wtc_tf_instance" {
-  ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = "t2.micro"
-  subnet_id                   = aws_subnet.wtc_tf_public_subnet_az1.id
-  key_name                    = "wtc-keypair-useast1"  # Replace with your actual key pair name
-  associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.wtc_tf_sg_allow_ssh_http_https.id]
-
-  tags = {
-    Name = "wtc-tf-ec2"
-  }
-}
-
-#################################################################################
-# Create s3 bucket
-#################################################################################
-
-resource "aws_s3_bucket" "wtc_tf_s3_bucket" {
-  bucket = "wtc-tf-s3-bucket"  
-
-  tags = {
-    Name = "wtc-tf-s3-bucket"
-    Environment = "Dev"
-  }
 }
