@@ -40,6 +40,20 @@ resource "aws_subnet" "wtc_tf_public_subnet_az2" {
 }
 
 #################################################################################
+# Public Subnet 3 in AZ3
+#################################################################################
+
+resource "aws_subnet" "wtc_tf_public_subnet_az3" {
+  vpc_id            = aws_vpc.wtc_tf_vpc.id
+  cidr_block        = var.public_subnet_cidr_blocks[2]
+  availability_zone = "us-east-1c"
+
+  tags = {
+    Name = "wtc-tf-public_subnet-az3"
+  }
+}
+
+#################################################################################
 # Private Subnet 1 in AZ1
 #################################################################################
 
@@ -66,6 +80,21 @@ resource "aws_subnet" "wtc_tf_private_subnet_az2" {
     Name = "wtc-tf-private_subnet-az2"
   }
 }
+
+#################################################################################
+# Private Subnet 2 AZ2
+#################################################################################
+
+resource "aws_subnet" "wtc_tf_private_subnet_az3" {
+  vpc_id            = aws_vpc.wtc_tf_vpc.id
+  cidr_block        = var.private_subnet_cidr_blocks[2]
+  availability_zone = "us-east-1c"
+
+  tags = {
+    Name = "wtc-tf-private_subnet-az3"
+  }
+}
+
 
 #################################################################################
 # Route Tables - For Public Subnets
@@ -99,6 +128,14 @@ resource "aws_route_table" "wtc_tf_private_rtb_az2" {
   }
 }
 
+resource "aws_route_table" "wtc_tf_private_rtb_az3" {
+  vpc_id = aws_vpc.wtc_tf_vpc.id
+
+  tags = {
+    Name = "wtc-tf-private-rtb-az3"
+  }
+}
+
 #################################################################################
 # Route Tables association - 2 Public Subnet - route table (Public)
 #################################################################################
@@ -110,6 +147,11 @@ resource "aws_route_table_association" "wtc_tf_public_subnet_az1_assoc" {
 
 resource "aws_route_table_association" "wtc_tf_public_subnet_az2_assoc" {
   subnet_id      = aws_subnet.wtc_tf_public_subnet_az2.id
+  route_table_id = aws_route_table.wtc_tf_public_rtb.id
+}
+
+resource "aws_route_table_association" "wtc_tf_public_subnet_az3_assoc" {
+  subnet_id      = aws_subnet.wtc_tf_public_subnet_az3.id
   route_table_id = aws_route_table.wtc_tf_public_rtb.id
 }
 
@@ -125,6 +167,11 @@ resource "aws_route_table_association" "wtc_tf_private_subnet_az1_assoc" {
 resource "aws_route_table_association" "wtc_tf_private_subnet_az2_assoc" {
   subnet_id      = aws_subnet.wtc_tf_private_subnet_az2.id
   route_table_id = aws_route_table.wtc_tf_private_rtb_az2.id
+}
+
+resource "aws_route_table_association" "wtc_tf_private_subnet_az3_assoc" {
+  subnet_id      = aws_subnet.wtc_tf_private_subnet_az3.id
+  route_table_id = aws_route_table.wtc_tf_private_rtb_az3.id
 }
 
 #################################################################################
@@ -158,6 +205,7 @@ resource "aws_vpc_endpoint" "wtc_tf_vpce_s3" {
   route_table_ids = [
     aws_route_table.wtc_tf_private_rtb_az1.id,
     aws_route_table.wtc_tf_private_rtb_az2.id,
+    aws_route_table.wtc_tf_private_rtb_az3.id,
   ]
 
   tags = {

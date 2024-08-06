@@ -99,6 +99,7 @@ variable "public_subnet_cidr_blocks" {
   default = [
     "10.0.10.0/24",
     "10.0.20.0/24",
+    "10.0.30.0/24",
   ]
 }
 
@@ -111,6 +112,7 @@ variable "private_subnet_cidr_blocks" {
   default = [
     "10.0.111.0/24",
     "10.0.109.0/24",
+    "10.0.115.0/24",
   ]
 }
 
