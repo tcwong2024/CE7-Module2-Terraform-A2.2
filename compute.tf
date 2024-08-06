@@ -3,8 +3,8 @@
 #################################################################################
 
 resource "aws_instance" "wtc_tf_instance" {
-  # ami                         = data.aws_ami.amazon_linux.id
-  ami                         = var.ami_id
+  #ami                        = var.ami_id                    # Hardcode AMI ID on local computer
+  ami                         = data.aws_ami.amazon_linux.id  # Retrieve from data
   instance_type               = var.instance_type
   key_name                    = var.key_name 
   subnet_id                   = aws_subnet.wtc_tf_public_subnet_az1.id
